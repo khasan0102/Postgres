@@ -12,13 +12,14 @@ const pool = new Pool(poolConf);
 
 
 ( async () => {
+    let client = await pool.connect();
     try {
-       let client = await pool.client.connect();
-       console.log(client);
+       let { rows } = await client.query(`SELECT 1+1 as result`);
+       console.log(rows);
     } catch (e) {
         console.log(e)
     } finally {
-
+       client.release();
     }
 })();
 
