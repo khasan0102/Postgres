@@ -68,9 +68,7 @@ router.post("/user/delete", async (req, res) => {
         console.log("post bo'ldi")
         let {id} = req.body;
         user_id = Number(id);
-        if(isNaN(id));
-            throw new Error("incored value");
-        await Users.deleteUser(user_id);
+        await Users.deleteUser(id);
         res.json({ok: true, message: "ok"});
     } catch (e){
         console.log(e)
