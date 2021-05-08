@@ -1,0 +1,216 @@
+<%- include('parts/header')%>
+<% var error, users, referal %>
+  <section class="pt-4 mt-4">
+   <div class="container">
+       <h1 class="display-2 text-center">Users</h1>
+       <% if(error) {%>
+           <div class="alert alert-danger">
+               <%= error %>
+           </div>
+       <%}%>
+       <form class="my-4 py-4 row" action="/" method="POST">
+           <label class="col-4">
+               <input name="name" type="text" class="form-control" placeholder="Name"/>
+           </label>
+           <label class="col-4">
+               <input name="age" type="number" class="form-control" placeholder="age"/>
+           </label>
+           <label class="col-4">
+               <select class="form-select" name="referal">
+                   <% for(let referal of referals) {%>
+                       <option value="<%= referal.referal_id%>"><%= referal.referal_name%></option>
+                   <%}%>
+               </select>
+           </label>
+           <button class="btn btn-primary col-12 mt-2">add</button>
+<!--           <select>-->
+<!--               -->
+<!--           </select>-->
+       </form>
+       <table class="table table-bordered table-hover w-100 fs-3">
+           <thead>
+              <tr>
+                  <th>#id</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Terget</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+              </tr>
+           </thead>
+           <tbody>
+           <% if(!users.length) {%>
+               <tr>
+                   <td>No users </td>
+                   <td> </td>
+                   <td> </td>
+               </tr>
+           <%}%>
+           <% for(let user of users) {%>
+               <tr>
+                   <th><%= user.user_id %></th>
+                   <td><%= user.user_name %></td>
+                   <td><%= user.user_age %></td>
+                   <td><%= user.referal_name %></td>
+                   <td style="width: 5%;"><i style="margin-left: 50%; margin-top: 25%; transform: translate(-50%, -25%)" class="far fa-edit" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<%= user.user_id%>"></i></td>
+                   <td style="width: 10%"><i style="margin-left: 50%; margin-top: 12.5%; transform: translate(-50%, -12.5%)" class="fas fa-trash" data-bs-toggle="modal" data-bs-target="#deleteModal"></i></td>
+               </tr>
+           <%}%>
+           </tbody>
+       </table>
+   </div>
+  </section>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">User Name</label>
+                        <input type="text" class="form-control"  aria-describedby="emailHelp" id="userName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age">
+                    </div>
+                    <div class="mb-3">
+                        <label for="referal" class="form-label">Referal</label>
+                        <select class="form-select" id="referal">
+                            <option value="1">instagram</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal"  data-bs-backdrop="static" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-header1"></div>
+            <div class="modal-body">
+                <h4 class="modal-title" id="exampleModalLabel">You want to delete this user</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="deleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let edits = document.querySelectorAll(".fa-edit");
+    let userName = document.querySelector("#userName");
+    let userAge = document.querySelector("#age");
+    let userReferal = document.querySelector("#referal");
+    let editBtn = document.querySelector("#editBtn");
+    let modalHeader = document.querySelector(".modal-header");
+
+    function addError(error, element) {
+        element.innerHTML = null;
+        let div = document.createElement("div");
+        div.classList = "alert alert-danger";
+        div.textContent = error;
+        element.appendChild(div);
+    }
+
+    for(let edit of edits) {
+        edit.onclick = async (event) => {
+            userReferal.innerHTML = null;
+            let elementsArray = event.target.parentNode.parentNode.childNodes;
+            let id = elementsArray[1].textContent;
+            let name = elementsArray[3].textContent;
+            let age = elementsArray[5].textContent;
+            let referal = elementsArray[7].textContent;
+            editBtn.dataset.id = id;
+            let response = await fetch("/referals");
+            response = await response.json();
+
+            userName.value = name;
+            userAge.value = age;
+            let referal_id;
+            for(let el of response) {
+                let option = document.createElement("option");
+                if(el.referal_name === referal)
+                    referal_id = el.referal_id;
+                option.textContent = el.referal_name;
+                option.value = el.referal_id;
+
+                userReferal.append(option);
+            }
+
+            userReferal.value = referal_id;
+        }
+    }
+
+    editBtn.onclick = async (event) => {
+       let response = await fetch("/user/edit", {
+           method: "POST",
+           headers: {
+               "Content-Type": "application/json"
+           },
+           body: JSON.stringify({
+               name: userName.value,
+               age: userAge.value,
+               referal: userReferal.value,
+               id: event.target.dataset.id
+           })
+       });
+
+       let {ok, message } = await response.json();
+       if(!ok){
+           addError(message, modalHeader);
+       }else {
+           window.location.reload();
+       }
+
+    }
+</script>
+
+<script>
+    let deletes = document.querySelectorAll(".fa-trash");
+    let deleteBtn = document.querySelector("#deleteBtn");
+    let modalHeader1 = document.querySelector("#modal-header1");
+    for(let el of deletes){
+        el.onclick = (event) => {
+            let elementsArray = event.target.parentNode.parentNode.childNodes;
+            let id = elementsArray[1].textContent;
+            deleteBtn.dataset.id = id;
+        }
+    }
+
+    deleteBtn.addEventListener("click", async (event) => {
+        console.log("bosildi")
+        let response = await fetch("/user/delete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: event.target.dataset.id
+            })
+        });
+
+        let {ok, message } = await response.json();
+        if(!ok){
+            addError(message, modalHeader1);
+        }else {
+            window.location.reload();
+        }
+    });
+</script>
+
+<%- include('parts/footer')%>

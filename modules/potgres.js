@@ -1,5 +1,5 @@
 const { Pool: Potgres } = require("pg");
-const config = require("./config");
+const config = require("../config");
 
 const pg_config = {
     user: config.PGUSER,
