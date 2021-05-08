@@ -3,6 +3,8 @@ const Users = require("../models/Usermodel.js");
 const Referals = require("../models/ReferalModel");
 const { userValidation } = require("../validations/validations");
 
+
+
 router.get('/', async (request, response) => {
     let users = await Users.getUsers();
     let referals = await Referals.getReferals();
