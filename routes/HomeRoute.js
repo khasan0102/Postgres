@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const Users = require("../models/Usermodel.js");
+const Users = require("../models/UserModel");
 const Referals = require("../models/ReferalModel");
 const { userValidation } = require("../validations/validations");
 
