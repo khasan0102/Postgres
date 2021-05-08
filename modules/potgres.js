@@ -2,11 +2,7 @@ const { Pool: Potgres } = require("pg");
 const config = require("../config");
 
 const pg_config = {
-    user: config.PGUSER,
-    password: config.PGPASS,
-    database: config.PGDB,
-    port: config.PGPORT,
-    host: config.PGHOST
+    connectionString: config.CONNECTIONSTRING
 }
 
 class DATABSE {

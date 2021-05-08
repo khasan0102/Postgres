@@ -10,3 +10,5 @@ CREATE TABLE referal (
      referal_id BIGSERIAL NOT NULL PRIMARY KEY,
      referal_name VARCHAR(64) NOT NULL
 )
+
+
